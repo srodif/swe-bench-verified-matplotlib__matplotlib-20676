@@ -280,6 +280,34 @@ def test_span_selector_direction():
         tool.direction = 'invalid_string'
 
 
+def test_span_selector_interactive_limits():
+    """Test that SpanSelector with interactive=True doesn't force axes limits to include 0."""
+    ax = get_ax()
+    # Set up axes with limits that don't include 0
+    ax.plot([10, 20], [10, 20])
+    original_xlim = ax.get_xlim() 
+    original_ylim = ax.get_ylim()
+
+    def onselect(vmin, vmax):
+        pass
+
+    # Create interactive SpanSelector - this should not change axes limits
+    tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True)
+    
+    # Verify axes limits haven't been forced to include 0
+    new_xlim = ax.get_xlim()
+    new_ylim = ax.get_ylim()
+    
+    # Check that x-axis limits haven't been expanded to include 0
+    # (within reasonable tolerance for matplotlib's automatic margin adjustments)
+    assert new_xlim[0] > 5, f"xlim min {new_xlim[0]} should not be forced toward 0"
+    assert new_xlim[1] < 25, f"xlim max {new_xlim[1]} should remain reasonable"
+    
+    # Y limits should be essentially unchanged for horizontal SpanSelector
+    assert abs(new_ylim[0] - original_ylim[0]) < 2, "ylim should be largely unchanged"
+    assert abs(new_ylim[1] - original_ylim[1]) < 2, "ylim should be largely unchanged"
+
+
 def test_tool_line_handle():
     ax = get_ax()
 

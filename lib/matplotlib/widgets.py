@@ -2156,7 +2156,14 @@ class SpanSelector(_SelectorWidget):
             self.artists.append(self._rect)
 
     def _setup_edge_handle(self, props):
-        self._edge_handles = ToolLineHandles(self.ax, self.extents,
+        # Use current axes limits as initial positions to avoid affecting limits
+        # when interactive handles are created before any user interaction
+        if self.direction == 'horizontal':
+            initial_positions = self.ax.get_xlim()
+        else:
+            initial_positions = self.ax.get_ylim()
+        
+        self._edge_handles = ToolLineHandles(self.ax, initial_positions,
                                              direction=self.direction,
                                              line_props=props,
                                              useblit=self.useblit)
